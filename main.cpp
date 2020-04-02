@@ -4,27 +4,22 @@
 
 using namespace std;
 
-
-
-
-
 int main()
 {
-	Board b;
-	string s;
+	Board board;
+	string str;
 	bool newgame = true;
 	cout << "Enter any key to continue" << endl;
-	cin >> s;
+	cin >> str;
 
 	while(newgame){
-		b.setBrd();
-		while (b.playGame());
+		board.setBoard();
+		while (board.playGame());
 		cout << "Do you want to play again? (y for yes, anything else for no) ";
-		cin >> s;
-		if (s != "y")
+		cin >> str;
+		if (str != "y")
 			newgame = false;
 	}
-
-
+	
 	return 0;
 }
