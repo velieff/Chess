@@ -37,7 +37,7 @@ void Square::setPieceAndColor(Piece p, Color c)
 }
 
 
-void Board::print() {
+void Board::printBoard() {
 	using namespace std;
 	cout << "   y: 0  1  2  3  4  5  6  7 " << endl << "x:" << endl;
 	for (int i = 0; i < 8; i++)
@@ -88,7 +88,7 @@ bool Board::doMove() {
 		y1 = move[1] - 48;
 		x2 = move[2] - 48;
 		y2 = move[3] - 48;
-		if (getSq(x1, y1)->getColor() == turn)
+		if (getSquare(x1, y1)->getColor() == turn)
 		{
 
 
@@ -102,8 +102,8 @@ bool Board::doMove() {
 		else
 			cout << "That's not your piece. Try again." << endl;
 	}
-	if (getSq(x2, y2)->getPiece() == KING)
-		if (getSq(x1, y1)->getColor() == WHITE)
+	if (getSquare(x2, y2)->getPiece() == KING)
+		if (getSquare(x1, y1)->getColor() == WHITE)
 		{
 			cout << "WHITE WINS" << endl;
 			return false;
@@ -125,7 +125,7 @@ bool Board::doMove() {
 
 }
 
-void Board::setBrd()
+void Board::setBoard()
 {
 	square[0][0].setPieceAndColor(ROOK, WHITE);
 	square[1][0].setPieceAndColor(KNIGHT, WHITE);
@@ -169,12 +169,12 @@ void Board::setBrd()
 bool Board::playGame()
 {
 	system("cls");
-	print();
+	printBoard();
 	return doMove();
 
 }
 
-bool Board::moveK(Square* thisKing, Square* thatSpace) {
+bool Board::moveKing(Square* thisKing, Square* thatSpace) {
 	if (abs(thatSpace->getX() - thisKing->getX()) == 1)
 		if (abs(thatSpace->getY() - thisKing->getY()) == 1)
 		{
@@ -185,7 +185,7 @@ bool Board::moveK(Square* thisKing, Square* thatSpace) {
 		else return false;
 	else return false;
 }
-bool Board::moveQ(Square* thisQueen, Square* thatSpace) { 
+bool Board::moveQueen(Square* thisQueen, Square* thatSpace) { 
 	int queenX = thisQueen->getX();
 	int queenY = thisQueen->getY();
 	int thatX = thatSpace->getX();
@@ -252,7 +252,7 @@ bool Board::moveQ(Square* thisQueen, Square* thatSpace) {
 	}
 }
 
-bool Board::moveB(Square* thisBishop, Square* thatSpace) {
+bool Board::moveBishop(Square* thisBishop, Square* thatSpace) {
 	int bishopX = thisBishop->getX();
 	int bishopY = thisBishop->getY();
 	int thatX = thatSpace->getX();
@@ -285,7 +285,7 @@ bool Board::moveB(Square* thisBishop, Square* thatSpace) {
 		return false;
 	}
 }
-bool Board::moveKN(Square* thisKnight, Square* thatSpace) {
+bool Board::moveKnight(Square* thisKnight, Square* thatSpace) {
 	int knightX = thisKnight->getX();
 	int knightY = thisKnight->getY();
 	int thatX = thatSpace->getX();
@@ -303,7 +303,7 @@ bool Board::moveKN(Square* thisKnight, Square* thatSpace) {
 	}
 }
 
-bool Board::moveR(Square* thisRook, Square* thatSpace)
+bool Board::moveRook(Square* thisRook, Square* thatSpace)
 {
 	int rookX = thisRook->getX();
 	int rookY = thisRook->getY();
@@ -351,7 +351,7 @@ bool Board::moveR(Square* thisRook, Square* thatSpace)
 	}
 }
 
-bool Board::moveP(Square* thisPawn, Square* thatSpace) {
+bool Board::movePawn(Square* thisPawn, Square* thatSpace) {
 	using namespace std;
 	bool invalid = false;
 	int pawnX = thisPawn->getX();
@@ -409,8 +409,8 @@ bool Board::makeMove(int x1, int y1, int x2, int y2) {
 		std::cout << "One of your inputs was out of bounds" << std::endl;
 		return false;
 	}
-	Square* src = getSq(x1, y1);
-	Square* dest = getSq(x2, y2);
+	Square* src = getSquare(x1, y1);
+	Square* dest = getSquare(x2, y2);
 
 	if (src->getColor() == dest->getColor() && dest->getColor() != NONE)
 	{
@@ -420,17 +420,17 @@ bool Board::makeMove(int x1, int y1, int x2, int y2) {
 
 	switch (src->getPiece())
 	{
-	case KING: return moveK(src, dest);
+	case KING: return moveKing(src, dest);
 		break;
-	case QUEEN: return moveQ(src, dest);
+	case QUEEN: return moveQueen(src, dest);
 		break;
-	case BISHOP: return moveB(src, dest);
+	case BISHOP: return moveBishop(src, dest);
 		break;
-	case KNIGHT: return moveKN(src, dest);
+	case KNIGHT: return moveKnight(src, dest);
 		break;
-	case ROOK: return moveR(src, dest);
+	case ROOK: return moveRook(src, dest);
 		break;
-	case PAWN: return moveP(src, dest);
+	case PAWN: return movePawn(src, dest);
 		break;
 	case EMPTY: std::cout << "You do not have a piece there" << std::endl;  return false;
 		break;
