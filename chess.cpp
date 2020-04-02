@@ -77,22 +77,22 @@ void Board::printBoard() {
 bool Board::doMove() {
 	using namespace std;
 	string move;
-	int x1, x2, y1, y2;
+	int currentX, newX, currentY, newY;
 	bool stop = false;
 	while (!stop)
 	{
 		(turn == WHITE) ? cout << "White's turn" << endl : cout << "Black's turn" << endl;
 		cout << "Type in your move as a single four character string. Use x-coordinates first in each pair." << endl;
 		cin >> move;
-		x1 = move[0] - 48;
-		y1 = move[1] - 48;
-		x2 = move[2] - 48;
-		y2 = move[3] - 48;
-		if (getSquare(x1, y1)->getColor() == turn)
+		currentX = move[0] - 48;
+		currentY = move[1] - 48;
+		newX = move[2] - 48;
+		newY = move[3] - 48;
+		if (getSquare(currentX, currentY)->getColor() == turn)
 		{
 
 
-			if (makeMove(x1, y1, x2, y2) == false)
+			if (makeMove(currentX, currentY, newX, newY) == false)
 			{
 				cout << "Invalid move, try again." << endl;
 			}
@@ -102,8 +102,8 @@ bool Board::doMove() {
 		else
 			cout << "That's not your piece. Try again." << endl;
 	}
-	if (getSquare(x2, y2)->getPiece() == KING)
-		if (getSquare(x1, y1)->getColor() == WHITE)
+	if (getSquare(newX, newY)->getPiece() == KING)
+		if (getSquare(currentX, currentY)->getColor() == WHITE)
 		{
 			cout << "WHITE WINS" << endl;
 			return false;
@@ -174,22 +174,22 @@ bool Board::playGame()
 
 }
 
-bool Board::moveKing(Square* thisKing, Square* thatSpace) {
-	if (abs(thatSpace->getX() - thisKing->getX()) == 1)
-		if (abs(thatSpace->getY() - thisKing->getY()) == 1)
+bool Board::moveKing(Square* currentSquare, Square* newSquare) {
+	if (abs(newSquare->getX() - currentSquare->getX()) == 1)
+		if (abs(newSquare->getY() - currentSquare->getY()) == 1)
 		{
-			thatSpace->setSpace(thisKing);
-			thisKing->setEmpty();
+			newSquare->setSpace(currentSquare);
+			currentSquare->setEmpty();
 			return true;
 		}
 		else return false;
 	else return false;
 }
-bool Board::moveQueen(Square* thisQueen, Square* thatSpace) { 
-	int queenX = thisQueen->getX();
-	int queenY = thisQueen->getY();
-	int thatX = thatSpace->getX();
-	int thatY = thatSpace->getY();
+bool Board::moveQueen(Square* currentSquare, Square* newSquare) { 
+	int queenX = currentSquare->getX();
+	int queenY = currentSquare->getY();
+	int thatX = newSquare->getX();
+	int thatY = newSquare->getY();
 	std::cout << "this";
 	int yIncrement;
 	int xIncrement;
@@ -242,8 +242,8 @@ bool Board::moveQueen(Square* thisQueen, Square* thatSpace) {
 
 	if (invalid == false)
 	{
-		thatSpace->setSpace(thisQueen);
-		thisQueen->setEmpty();
+		newSquare->setSpace(currentSquare);
+		currentSquare->setEmpty();
 		return true;
 	}
 	else
@@ -252,11 +252,11 @@ bool Board::moveQueen(Square* thisQueen, Square* thatSpace) {
 	}
 }
 
-bool Board::moveBishop(Square* thisBishop, Square* thatSpace) {
-	int bishopX = thisBishop->getX();
-	int bishopY = thisBishop->getY();
-	int thatX = thatSpace->getX();
-	int thatY = thatSpace->getY();
+bool Board::moveBishop(Square* currentSquare, Square* newSquare) {
+	int bishopX = currentSquare->getX();
+	int bishopY = currentSquare->getY();
+	int thatX = newSquare->getX();
+	int thatY = newSquare->getY();
 	bool invalid = false;
 	if (abs(bishopX - thatX) == abs(bishopY - thatY))
 	{
@@ -276,8 +276,8 @@ bool Board::moveBishop(Square* thisBishop, Square* thatSpace) {
 
 	if (invalid == false)
 	{
-		thatSpace->setSpace(thisBishop);
-		thisBishop->setEmpty();
+		newSquare->setSpace(currentSquare);
+		currentSquare->setEmpty();
 		return true;
 	}
 	else
@@ -285,16 +285,16 @@ bool Board::moveBishop(Square* thisBishop, Square* thatSpace) {
 		return false;
 	}
 }
-bool Board::moveKnight(Square* thisKnight, Square* thatSpace) {
-	int knightX = thisKnight->getX();
-	int knightY = thisKnight->getY();
-	int thatX = thatSpace->getX();
-	int thatY = thatSpace->getY();
+bool Board::moveKnight(Square* currentSquare, Square* newSquare) {
+	int knightX = currentSquare->getX();
+	int knightY = currentSquare->getY();
+	int thatX = newSquare->getX();
+	int thatY = newSquare->getY();
 
 	if ((abs(knightX - thatX) == 2 && abs(knightY - thatY) == 1) || (abs(knightX - thatX) == 1 && abs(knightY - thatY) == 2))
 	{
-		thatSpace->setSpace(thisKnight);
-		thisKnight->setEmpty();
+		newSquare->setSpace(currentSquare);
+		currentSquare->setEmpty();
 		return true;
 	}
 	else
@@ -303,12 +303,12 @@ bool Board::moveKnight(Square* thisKnight, Square* thatSpace) {
 	}
 }
 
-bool Board::moveRook(Square* thisRook, Square* thatSpace)
+bool Board::moveRook(Square* currentSquare, Square* newSquare)
 {
-	int rookX = thisRook->getX();
-	int rookY = thisRook->getY();
-	int thatX = thatSpace->getX();
-	int thatY = thatSpace->getY();
+	int rookX = currentSquare->getX();
+	int rookY = currentSquare->getY();
+	int thatX = newSquare->getX();
+	int thatY = newSquare->getY();
 	bool invalid = false;
 	if (rookX != thatX || rookY != thatY)
 	{
@@ -340,8 +340,8 @@ bool Board::moveRook(Square* thisRook, Square* thatSpace)
 	}
 	if (invalid == false)
 	{
-		thatSpace->setSpace(thisRook);
-		thisRook->setEmpty();
+		newSquare->setSpace(currentSquare);
+		currentSquare->setEmpty();
 		return true;
 	}
 	else
@@ -351,48 +351,48 @@ bool Board::moveRook(Square* thisRook, Square* thatSpace)
 	}
 }
 
-bool Board::movePawn(Square* thisPawn, Square* thatSpace) {
+bool Board::movePawn(Square* currentSquare, Square* newSquare) {
 	using namespace std;
 	bool invalid = false;
-	int pawnX = thisPawn->getX();
-	int pawnY = thisPawn->getY();
-	int thatX = thatSpace->getX();
-	int thatY = thatSpace->getY();
+	int pawnX = currentSquare->getX();
+	int pawnY = currentSquare->getY();
+	int thatX = newSquare->getX();
+	int thatY = newSquare->getY();
 
 
-	if (thisPawn->getColor() == WHITE)
+	if (currentSquare->getColor() == WHITE)
 	{
 
-		if (pawnX == thatX && thatY == pawnY + 1 && thatSpace->getColor() == NONE)
+		if (pawnX == thatX && thatY == pawnY + 1 && newSquare->getColor() == NONE)
 		{
-			thatSpace->setSpace(thisPawn);
-			thisPawn->setEmpty();
+			newSquare->setSpace(currentSquare);
+			currentSquare->setEmpty();
 			return true;
 		}
 		else
-			if ((pawnX + 1 == thatX || pawnX - 1 == thatX) && pawnY + 1 == thatY  && thatSpace->getColor() == BLACK)
+			if ((pawnX + 1 == thatX || pawnX - 1 == thatX) && pawnY + 1 == thatY  && newSquare->getColor() == BLACK)
 			{
-				thatSpace->setSpace(thisPawn);
-				thisPawn->setEmpty();
+				newSquare->setSpace(currentSquare);
+				currentSquare->setEmpty();
 				return true;
 			}
 			else
 				return false;
 	}
 	else
-		if (thisPawn->getColor() == BLACK)
+		if (currentSquare->getColor() == BLACK)
 		{
-			if (pawnX == thatX && thatY == pawnY - 1 && thatSpace->getColor() == NONE)
+			if (pawnX == thatX && thatY == pawnY - 1 && newSquare->getColor() == NONE)
 			{
-				thatSpace->setSpace(thisPawn);
-				thisPawn->setEmpty();
+				newSquare->setSpace(currentSquare);
+				currentSquare->setEmpty();
 				return true;
 			}
 			else
-				if ((pawnX + 1 == thatX || pawnX - 1 == thatX) && pawnY - 1 == thatY  && thatSpace->getColor() == WHITE)
+				if ((pawnX + 1 == thatX || pawnX - 1 == thatX) && pawnY - 1 == thatY  && newSquare->getColor() == WHITE)
 				{
-					thatSpace->setSpace(thisPawn);
-					thisPawn->setEmpty();
+					newSquare->setSpace(currentSquare);
+					currentSquare->setEmpty();
 					return true;
 				}
 				else
@@ -401,16 +401,16 @@ bool Board::movePawn(Square* thisPawn, Square* thatSpace) {
 		else
 			return false;
 }
-bool Board::makeMove(int x1, int y1, int x2, int y2) {
+bool Board::makeMove(int currentX, int currentY, int newX, int newY) {
 
 	using namespace std;
-	if (x1 < 0 || x1>7 || y1 < 0 || y1>7 || x2 < 0 || x2>7 || y2 < 0 || y2>8)
+	if (currentX < 0 || currentX>7 || currentY < 0 || currentY>7 || newX < 0 || newX>7 || newY < 0 || newY>8)
 	{
 		std::cout << "One of your inputs was out of bounds" << std::endl;
 		return false;
 	}
-	Square* src = getSquare(x1, y1);
-	Square* dest = getSquare(x2, y2);
+	Square* src = getSquare(currentX, currentY);
+	Square* dest = getSquare(newX, newY);
 
 	if (src->getColor() == dest->getColor() && dest->getColor() != NONE)
 	{
