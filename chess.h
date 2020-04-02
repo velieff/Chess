@@ -14,11 +14,11 @@ class Square
 	Color color;
 	int x, y;
 public:
-	void setSp(Square*);
-	void setEmp();
-	void setPC(Piece, Color);
-	Piece getP();
-	Color getC();
+	void setSpace(Square*);
+	void setEmpty();
+	void setPieceAndColor(Piece, Color);
+	Piece getPiece();
+	Color getColor();
 	void setX(int ex) { x = ex; }
 	void setY(int why) { y = why; }
 	int getX() { return x; }
