@@ -19,8 +19,8 @@ public:
 	void setPieceAndColor(Piece, Color);
 	Piece getPiece();
 	Color getColor();
-	void setX(int ex) { x = ex; }
-	void setY(int why) { y = why; }
+	void setX(int newX) { x = newX; }
+	void setY(int newY) { y = newY; }
 	int getX() { return x; }
 	int getY() { return y; }
 	Square();
@@ -30,13 +30,13 @@ class Board
 {
 	Square square[8][8];
 	Color turn=WHITE;
-	bool moveKing(Square* thisKing, Square* thatSpace);
-	bool moveQueen(Square* thisQueen, Square* thatSpace);
-	bool moveBishop(Square* thisBishop, Square* thatSpace);
-	bool moveKnight(Square* thisKnight, Square* thatSpace);
-	bool moveRook(Square* thisRook, Square* thatSpace);
-	bool movePawn(Square* thisPawn, Square* thatSpace);
-	bool makeMove(int x1, int y1, int x2, int y2);
+	bool moveKing(Square* currentSquare, Square* newSquare);
+	bool moveQueen(Square* currentSquare, Square* newSquare);
+	bool moveBishop(Square* currentSquare, Square* newSquare);
+	bool moveKnight(Square* currentSquare, Square* newSquare);
+	bool moveRook(Square* currentSquare, Square* newSquare);
+	bool movePawn(Square* currentSquare, Square* newSquare);
+	bool makeMove(int currentX, int currentY, int newX, int newY);
 	void printBoard();
 public:
 	Square* getSquare(int x, int y) {
