@@ -9,11 +9,12 @@ enum Color { WHITE, BLACK, NONE };
 
 class Square
 {
-	
+private:
 	Piece piece;
 	Color color;
 	int x, y;
 public:
+	Square();
 	void setSpace(Square*);
 	void setEmpty();
 	void setPieceAndColor(Piece, Color);
@@ -23,11 +24,11 @@ public:
 	void setY(int newY) { y = newY; }
 	int getX() { return x; }
 	int getY() { return y; }
-	Square();
 };
 
 class Board
 {
+private:
 	Square square[8][8];
 	Color turn=WHITE;
 	bool moveKing(Square* currentSquare, Square* newSquare);
@@ -36,18 +37,13 @@ class Board
 	bool moveKnight(Square* currentSquare, Square* newSquare);
 	bool moveRook(Square* currentSquare, Square* newSquare);
 	bool movePawn(Square* currentSquare, Square* newSquare);
-	bool makeMove(int currentX, int currentY, int newX, int newY);
+	bool moveFigure(int currentX, int currentY, int newX, int newY);
 	void printBoard();
 public:
-	Square* getSquare(int x, int y) {
-		return &square[x][y];
-	}
-	void setSquare(Square * s, int x, int y){
-		square[x][y]=*s;
-	}
-	bool doMove();
-	
-	void setBoard();
+	Board();
+	Square* getSquare(int x, int y) { return &square[x][y]; }
+	void setSquare(Square * s, int x, int y) { square[x][y] = *s; }
+	bool makeMove();
 	bool playGame();
 };
 
