@@ -38,8 +38,8 @@ void Square::setPieceAndColor(Piece p, Color c)
 
 Board::Board()
 {
-	int n = 7;
-	for (int i = 0; i < 3; i++)
+	int boardSize = 8;
+	for (int i = 0; i < boardSize / 2 + 1; i++)
 	{
 		Piece p;
 		switch (i)
@@ -47,26 +47,22 @@ Board::Board()
 		case 0: p = ROOK; break;
 		case 1: p = KNIGHT; break;
 		case 2: p = BISHOP; break;
+		case 3: p = QUEEN; break;
+		case 4: p = KING; break;
 		default: cout << "X"; break;
 		}
 		square[i][0].setPieceAndColor(p, WHITE);
-		square[n - i][0].setPieceAndColor(p, WHITE);
 		square[i][7].setPieceAndColor(p, BLACK);
-		square[n - i][7].setPieceAndColor(p, BLACK);
+		square[i][1].setPieceAndColor(PAWN, WHITE);
+		square[i][6].setPieceAndColor(PAWN, BLACK);
 
-		square[i][1].setPieceAndColor(PAWN, WHITE);
-		square[n - i][1].setPieceAndColor(PAWN, WHITE);
-		square[i][6].setPieceAndColor(PAWN, BLACK);
-		square[n - i][6].setPieceAndColor(PAWN, BLACK);
-	}
-	for (int i = 3; i < 5; i++)
-	{
-		Piece p;
-		(i == 3) ? p = QUEEN : p = KING;
-		square[i][0].setPieceAndColor(p, WHITE);
-		square[i][7].setPieceAndColor(p, BLACK);
-		square[i][1].setPieceAndColor(PAWN, WHITE);
-		square[i][6].setPieceAndColor(PAWN, BLACK);
+		if (i < 3)
+		{
+			square[boardSize - i - 1][0].setPieceAndColor(p, WHITE);
+			square[boardSize - i - 1][7].setPieceAndColor(p, BLACK);
+			square[boardSize - i - 1][1].setPieceAndColor(PAWN, WHITE);
+			square[boardSize - i - 1][6].setPieceAndColor(PAWN, BLACK);
+		}
 	}
 
 	for (int i = 2; i < 6; i++)
