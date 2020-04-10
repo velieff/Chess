@@ -1,42 +1,49 @@
+#include<iostream>
 #include "chess.h"
+#include"Figure.h"
+#include"Pawn.h"
+#include"Rook.h"
+#include"Knight.h"
+#include"Bishop.h"
+#include"Queen.h"
+#include"King.h"
 using namespace std;
 
 Square::Square()
 {
-	piece = EMPTY;
+	figure = NULL;
 	color = NONE;
+}
+
+Square::~Square()
+{
+	destroy();
 }
 
 void Square::copy(Square* s)
 {
 	color = s->getColor();
-	piece = s->getPiece();
+	destroy();
+	figure = s->getFigure()->getCopy();
 }
 
 void Square::print()
 {
-	switch (piece)
-	{
-	case KING: (color == WHITE) ? cout << " K " : cout << " k "; break;
-	case QUEEN: (color == WHITE) ? cout << " Q " : cout << " q "; break;
-	case BISHOP:(color == WHITE) ? cout << " B " : cout << " b "; break;
-	case KNIGHT:(color == WHITE) ? cout << " H " : cout << " h "; break;
-	case ROOK: (color == WHITE) ? cout << " R " : cout << " r "; break;
-	case PAWN: (color == WHITE) ? cout << " P " : cout << " p "; break;
-	case EMPTY: cout << " " << "\21" << " "; break;
-	default: cout << "XXX"; break;
-	}
+	if(figure && color != NONE) 
+		figure->print(color == WHITE);
+	else
+		cout << " " << "\21" << " ";
 }
 
 void Square::setEmpty()
 {
 	color = NONE;
-	piece = EMPTY;
+	destroy();
 }
 
-Piece Square::getPiece()
+Figure* Square::getFigure()
 {
-	return piece;
+	return figure;
 }
 
 Color Square::getColor()
@@ -44,9 +51,10 @@ Color Square::getColor()
 	return color;
 }
 
-void Square::setPieceAndColor(Piece p, Color c)
+void Square::setFigureAndColor(Figure* f, Color c)
 {
-	piece = p;
+	destroy();
+	figure = f;
 	color = c;
 }
 
@@ -70,28 +78,46 @@ int Square::getY()
 	return y;
 }
 
+void Square::destroy()
+{
+	if (figure)
+	{
+		delete figure;
+	}
+}
+
 Board::Board()
 {
 	for (int i = 0; i < boardSize / 2 + 1; i++)
 	{
-		square[i][0].setPieceAndColor((Piece)i, WHITE);
-		square[i][7].setPieceAndColor((Piece)i, BLACK);
-		square[i][1].setPieceAndColor(PAWN, WHITE);
-		square[i][6].setPieceAndColor(PAWN, BLACK);
+		Figure* f = NULL;
+		switch (i)
+		{
+		case 0: f=new Rook(); break;
+		case 1: f=new Knight(); break;
+		case 2: f=new Bishop(); break;
+		case 3: f=new Queen(); break;
+		case 4: f=new King(); break;
+		default: break;
+		}
+		square[i][0].setFigureAndColor(f, WHITE);
+		square[i][7].setFigureAndColor(f->getCopy(), BLACK);
+		square[i][1].setFigureAndColor(new Pawn(), WHITE);
+		square[i][6].setFigureAndColor(new Pawn(), BLACK);
 
 		if (i < 3)
 		{
-			square[boardSize - i - 1][0].setPieceAndColor((Piece)i, WHITE);
-			square[boardSize - i - 1][7].setPieceAndColor((Piece)i, BLACK);
-			square[boardSize - i - 1][1].setPieceAndColor(PAWN, WHITE);
-			square[boardSize - i - 1][6].setPieceAndColor(PAWN, BLACK);
+			square[boardSize - i - 1][0].setFigureAndColor(f->getCopy(), WHITE);
+			square[boardSize - i - 1][7].setFigureAndColor(f->getCopy(), BLACK);
+			square[boardSize - i - 1][1].setFigureAndColor(new Pawn(), WHITE);
+			square[boardSize - i - 1][6].setFigureAndColor(new Pawn(), BLACK);
 		}
 	}
 
 	for (int i = 2; i < boardSize - 2; i++)
 	{
 		for (int j = 0; j < boardSize; j++)
-			square[j][i].setPieceAndColor(EMPTY, NONE);
+			square[j][i].setFigureAndColor(NULL, NONE);
 
 	}
 	for (int i = 0; i < boardSize; i++)
@@ -149,18 +175,19 @@ bool Board::makeMove()
 			}
 			else
 			{
+				move(getSquare(currentX, currentY), getSquare(newX, newY));
 				validMove = true;
 			}
 		}
 		else
 			cout << "That's not your piece. Try again." << endl;
 	}
-	if (getSquare(newX, newY)->getPiece() == KING)
+	if (getSquare(newX, newY)->getFigure()->isKing())
 	{
 		(getSquare(currentX, currentY)->getColor() == WHITE) ? cout << "WHITE WINS\n" : cout << "BLACK WINS\n";
 		return false;
 	}
-
+	
 	(turn == BLACK) ? turn = WHITE : turn = BLACK;
 	return true;
 
@@ -183,206 +210,12 @@ bool Board::moveFigure(int currentX, int currentY, int newX, int newY)
 		return false;
 	}
 
-	switch (currentSquare->getPiece())
-	{
-	case KING: return moveKing(currentSquare, newSquare); break;
-	case QUEEN: return moveQueen(currentSquare, newSquare); break;
-	case BISHOP: return moveBishop(currentSquare, newSquare); break;
-	case KNIGHT: return moveKnight(currentSquare, newSquare); break;
-	case ROOK: return moveRook(currentSquare, newSquare); break;
-	case PAWN: return movePawn(currentSquare, newSquare); break;
-	case EMPTY: cout << "You do not have a piece there" << endl;  return false; break;
-	default: cout << "Something went wrong in the switch statement in moveFigure()" << endl; return false; break;
-	}
+	return currentSquare->getFigure()->isValidMove(currentX, currentY, newX, newY)
+		&& currentSquare->getFigure()->isCleanWay(*this, currentSquare, newSquare);
 }
 
-bool Board::moveKing(Square* currentSquare, Square* newSquare)
+void Board::move(Square* currentSquare, Square* newSquare)
 {
-	int currentX = currentSquare->getX(), currentY = currentSquare->getY(), newX = newSquare->getX(), newY = newSquare->getY();
-
-	if ((abs(newX - currentX) == 1) &&
-		(abs(newY - currentY) == 1))
-	{
-		newSquare->copy(currentSquare);
-		currentSquare->setEmpty();
-		return true;
-	}
-	return false;
-}
-bool Board::moveQueen(Square* currentSquare, Square* newSquare)
-{
-	int currentX = currentSquare->getX(), currentY = currentSquare->getY(), newX = newSquare->getX(), newY = newSquare->getY();
-
-	int yIncrement;
-	int xIncrement;
-
-	if (currentX != newX || currentY != newY)
-	{
-
-		if (currentX == newX)
-		{
-			yIncrement = (newY - currentY) / (abs(newY - currentY));
-			for (int i = currentY + yIncrement; i != newY; i += yIncrement)
-			{
-				if (square[newX][i].getColor() != NONE)
-					return false;
-			}
-		}
-		else
-		{
-			if (currentY == newY)
-			{
-
-				xIncrement = (newX - currentX) / (abs(newX - currentX));
-				for (int i = currentX + xIncrement; i != newX; i += xIncrement)
-				{
-					if (square[i][newY].getColor() != NONE)
-						return false;
-				}
-			}
-			else
-			{
-				if (abs(currentX - newX) == abs(currentY - newY))
-				{
-					xIncrement = (newX - currentX) / (abs(newX - currentX));
-					yIncrement = (newY - currentY) / (abs(newY - currentY));
-
-					for (int i = 1; i < abs(currentX - newX); i++)
-					{
-						cout << "It got here somehow";
-						if (square[currentX + xIncrement * i][currentY + yIncrement * i].getColor() != NONE)
-							return false;
-					}
-				}
-				else
-					return false;
-			}
-		}
-	}
-
 	newSquare->copy(currentSquare);
 	currentSquare->setEmpty();
-	return true;
-}
-
-bool Board::moveBishop(Square* currentSquare, Square* newSquare)
-{
-	int currentX = currentSquare->getX(), currentY = currentSquare->getY(), newX = newSquare->getX(), newY = newSquare->getY();
-
-	if (abs(currentX - newX) == abs(currentY - newY))
-	{
-		int xIncrement = (newX - currentX) / (abs(newX - currentX));
-		int yIncrement = (newY - currentY) / (abs(newY - currentY));
-
-		for (int i = 1; i < abs(currentX - newX); i++)
-		{
-			cout << "It got here somehow";
-			if (square[currentX + xIncrement * i][currentY + yIncrement * i].getColor() != NONE)
-				return false;
-		}
-	}
-	else
-		return false;
-
-	newSquare->copy(currentSquare);
-	currentSquare->setEmpty();
-	return true;
-}
-bool Board::moveKnight(Square* currentSquare, Square* newSquare)
-{
-	int currentX = currentSquare->getX(), currentY = currentSquare->getY(), newX = newSquare->getX(), newY = newSquare->getY();
-
-	if ((abs(currentX - newX) == 2 && abs(currentY - newY) == 1) || (abs(currentX - newX) == 1 && abs(currentY - newY) == 2))
-	{
-		newSquare->copy(currentSquare);
-		currentSquare->setEmpty();
-		return true;
-	}
-	else
-		return false;
-}
-
-bool Board::moveRook(Square* currentSquare, Square* newSquare)
-{
-	int currentX = currentSquare->getX(), currentY = currentSquare->getY(), newX = newSquare->getX(), newY = newSquare->getY();
-
-	if (currentX != newX || currentY != newY)
-	{
-
-		if (currentX == newX)
-		{
-			int yIncrement = (newY - currentY) / (abs(newY - currentY));
-			for (int i = currentY + yIncrement; i != newY; i += yIncrement)
-			{
-				if (square[newX][i].getColor() != NONE)
-					return false;
-			}
-		}
-		else
-		{
-			if (currentY == newY)
-			{
-				int xIncrement = (newX - currentX) / (abs(newX - currentX));
-				for (int i = currentX + xIncrement; i != newX; i += xIncrement)
-				{
-					if (square[i][newY].getColor() != NONE)
-						return false;
-				}
-			}
-			else
-				return false;
-		}
-	}
-
-	newSquare->copy(currentSquare);
-	currentSquare->setEmpty();
-	return true;
-}
-
-bool Board::movePawn(Square* currentSquare, Square* newSquare)
-{
-	int currentX = currentSquare->getX(), currentY = currentSquare->getY(), newX = newSquare->getX(), newY = newSquare->getY();
-
-	if (currentSquare->getColor() == WHITE)
-	{
-
-		if (currentX == newX && newY == currentY + 1 && newSquare->getColor() == NONE)
-		{
-			newSquare->copy(currentSquare);
-			currentSquare->setEmpty();
-			return true;
-		}
-		else
-		{
-			if ((currentX + 1 == newX || currentX - 1 == newX) && currentY + 1 == newY && newSquare->getColor() == BLACK)
-			{
-				newSquare->copy(currentSquare);
-				currentSquare->setEmpty();
-				return true;
-			}
-			else
-				return false;
-		}
-	}
-	else
-		if (currentSquare->getColor() == BLACK)
-		{
-			if (currentX == newX && newY == currentY - 1 && newSquare->getColor() == NONE)
-			{
-				newSquare->copy(currentSquare);
-				currentSquare->setEmpty();
-				return true;
-			}
-			else
-				if ((currentX + 1 == newX || currentX - 1 == newX) && currentY - 1 == newY && newSquare->getColor() == WHITE)
-				{
-					newSquare->copy(currentSquare);
-					currentSquare->setEmpty();
-					return true;
-				}
-				else
-					return false;
-		}
-		else
-			return false;
 }

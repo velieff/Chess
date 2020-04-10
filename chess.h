@@ -3,8 +3,8 @@
 #include <iostream>
 #include <cmath>
 #include <string>
+#include "Figure.h"
 
-enum Piece { ROOK, KNIGHT, BISHOP, QUEEN, KING, PAWN, EMPTY};
 enum Color { WHITE, BLACK, NONE };
 
 const int boardSize = 8;
@@ -12,21 +12,23 @@ const int boardSize = 8;
 class Square
 {
 private:
-	Piece piece;
+	Figure* figure;
 	Color color;
 	int x, y;
 public:
 	Square();
+	~Square();
 	void copy(Square* s);
 	void print();
-	void setPieceAndColor(Piece p, Color c);
+	void setFigureAndColor(Figure* f, Color c);
 	void setEmpty();
-	Piece getPiece();
+	Figure* getFigure();
 	Color getColor();
 	void setX(int newX);
 	void setY(int newY);
 	int getX();
 	int getY();
+	void destroy();
 };
 
 class Board
@@ -35,12 +37,7 @@ private:
 	Square square[boardSize][boardSize];
 	Color turn = WHITE;
 	bool moveFigure(int currentX, int currentY, int newX, int newY);
-	bool moveKing(Square* currentSquare, Square* newSquare);
-	bool moveQueen(Square* currentSquare, Square* newSquare);
-	bool moveBishop(Square* currentSquare, Square* newSquare);
-	bool moveKnight(Square* currentSquare, Square* newSquare);
-	bool moveRook(Square* currentSquare, Square* newSquare);
-	bool movePawn(Square* currentSquare, Square* newSquare);
+	void move(Square* currentSquare, Square* newSquare);
 	void printBoard();
 public:
 	Board();
