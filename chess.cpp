@@ -12,33 +12,34 @@ using namespace std;
 Square::Square()
 {
 	figure = NULL;
-	color = NONE;
 }
 
 Square::~Square()
 {
-	destroy();
+	setEmpty();
 }
 
 void Square::copy(Square* s)
 {
-	color = s->getColor();
-	destroy();
-	figure = s->getFigure()->getCopy();
+	setEmpty();
+	figure = s->getFigure()->getCopy(s->getColor());
 }
 
 void Square::print()
 {
-	if(figure && color != NONE) 
-		figure->print(color == WHITE);
+	if(figure) 
+		figure->print();
 	else
 		cout << " " << "\21" << " ";
 }
 
 void Square::setEmpty()
 {
-	color = NONE;
-	destroy();
+	if (figure)
+	{
+		delete figure;
+		figure = NULL;
+	}
 }
 
 Figure* Square::getFigure()
@@ -46,44 +47,15 @@ Figure* Square::getFigure()
 	return figure;
 }
 
+void Square::setFigure(Figure* f)
+{
+	setEmpty();
+	figure = f;
+}
+
 Color Square::getColor()
 {
-	return color;
-}
-
-void Square::setFigureAndColor(Figure* f, Color c)
-{
-	destroy();
-	figure = f;
-	color = c;
-}
-
-void Square::setX(int newX)
-{
-	x = newX; 
-}
-
-void Square::setY(int newY)
-{
-	y = newY;
-}
-
-int Square::getX() 
-{ 
-	return x;
-}
-
-int Square::getY() 
-{ 
-	return y;
-}
-
-void Square::destroy()
-{
-	if (figure)
-	{
-		delete figure;
-	}
+	return figure ? figure->getColor() : NONE;
 }
 
 Board::Board()
@@ -93,41 +65,27 @@ Board::Board()
 		Figure* f = NULL;
 		switch (i)
 		{
-		case 0: f=new Rook(); break;
-		case 1: f=new Knight(); break;
-		case 2: f=new Bishop(); break;
-		case 3: f=new Queen(); break;
-		case 4: f=new King(); break;
+		case 0: f=new Rook(WHITE); break;
+		case 1: f=new Knight(WHITE); break;
+		case 2: f=new Bishop(WHITE); break;
+		case 3: f=new Queen(WHITE); break;
+		case 4: f=new King(WHITE); break;
 		default: break;
 		}
-		square[i][0].setFigureAndColor(f, WHITE);
-		square[i][7].setFigureAndColor(f->getCopy(), BLACK);
-		square[i][1].setFigureAndColor(new Pawn(), WHITE);
-		square[i][6].setFigureAndColor(new Pawn(), BLACK);
+		square[i][0].setFigure(f);
+		square[i][7].setFigure(f->getCopy(BLACK));
+		square[i][1].setFigure(new Pawn(WHITE));
+		square[i][6].setFigure(new Pawn(BLACK));
 
 		if (i < 3)
 		{
-			square[boardSize - i - 1][0].setFigureAndColor(f->getCopy(), WHITE);
-			square[boardSize - i - 1][7].setFigureAndColor(f->getCopy(), BLACK);
-			square[boardSize - i - 1][1].setFigureAndColor(new Pawn(), WHITE);
-			square[boardSize - i - 1][6].setFigureAndColor(new Pawn(), BLACK);
+			square[boardSize - i - 1][0].setFigure(f->getCopy(WHITE));
+			square[boardSize - i - 1][7].setFigure(f->getCopy(BLACK));
+			square[boardSize - i - 1][1].setFigure(new Pawn(WHITE));
+			square[boardSize - i - 1][6].setFigure(new Pawn(BLACK));
 		}
 	}
-
-	for (int i = 2; i < boardSize - 2; i++)
-	{
-		for (int j = 0; j < boardSize; j++)
-			square[j][i].setFigureAndColor(NULL, NONE);
-
-	}
-	for (int i = 0; i < boardSize; i++)
-	{
-		for (int j = 0; j < boardSize; j++)
-		{
-			square[i][j].setX(i);
-			square[i][j].setY(j);
-		}
-	}
+	turn = WHITE;
 }
 
 void Board::printBoard()
@@ -211,7 +169,7 @@ bool Board::moveFigure(int currentX, int currentY, int newX, int newY)
 	}
 
 	return currentSquare->getFigure()->isValidMove(currentX, currentY, newX, newY)
-		&& currentSquare->getFigure()->isCleanWay(*this, currentSquare, newSquare);
+		&& currentSquare->getFigure()->isCleanWay(*this, currentX, currentY, newX, newY);
 }
 
 void Board::move(Square* currentSquare, Square* newSquare)

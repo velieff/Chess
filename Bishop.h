@@ -8,7 +8,9 @@ class Bishop : public Figure
 {
 public:
 	Bishop() {};
-	virtual void print(bool isWhite) { isWhite ? std::cout << " B " : std::cout << " b "; };
+	Bishop(const Bishop& f) { color = f.color; };
+	Bishop(Color c) { color = c; };
+	virtual void print() { color == WHITE ? std::cout << " B " : std::cout << " b "; };
 	virtual bool isValidMove(int currentX, int currentY, int newX, int newY)
 	{
 		if (abs(currentX - newX) == abs(currentY - newY))
@@ -17,18 +19,18 @@ public:
 		}
 		return false;
 	};
-	virtual bool isCleanWay(Board& thisBoard, Square* currentSquare, Square* newSquare)
+	virtual bool isCleanWay(Board& thisBoard, int currentX, int currentY, int newX, int newY)
 	{
-		int xIncrement = (newSquare->getX() - currentSquare->getX()) / (abs(newSquare->getX() - currentSquare->getX()));
-		int yIncrement = (newSquare->getY() - currentSquare->getY()) / (abs(newSquare->getY() - currentSquare->getY()));
+		int xIncrement = (newX - currentX) / (abs(newX - currentX));
+		int yIncrement = (newY - currentY) / (abs(newY - currentY));
 
-		for (int i = 1; i < abs(currentSquare->getX() - newSquare->getX()); i++)
+		for (int i = 1; i < abs(currentX - newX); i++)
 		{
-			if (thisBoard.getSquare((currentSquare->getX() + xIncrement * i), (currentSquare->getY() + yIncrement * i))->getColor() != NONE)
+			if (thisBoard.getSquare((currentX + xIncrement * i), (currentY + yIncrement * i))->getColor() != NONE)
 				return false;
 		}
 		return true;
 	};
-	virtual Figure* getCopy() const { return new Bishop(*this); };
+	virtual Figure* getCopy(Color c) const { return new Bishop(c); };
 	virtual bool isKing() { return false; };
 };

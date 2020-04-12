@@ -5,37 +5,28 @@
 #include <string>
 #include "Figure.h"
 
-enum Color { WHITE, BLACK, NONE };
-
 const int boardSize = 8;
 
 class Square
 {
 private:
 	Figure* figure;
-	Color color;
-	int x, y;
 public:
 	Square();
 	~Square();
 	void copy(Square* s);
 	void print();
-	void setFigureAndColor(Figure* f, Color c);
+	void setFigure(Figure* f);
 	void setEmpty();
 	Figure* getFigure();
 	Color getColor();
-	void setX(int newX);
-	void setY(int newY);
-	int getX();
-	int getY();
-	void destroy();
 };
 
 class Board
 {
 private:
 	Square square[boardSize][boardSize];
-	Color turn = WHITE;
+	Color turn;
 	bool moveFigure(int currentX, int currentY, int newX, int newY);
 	void move(Square* currentSquare, Square* newSquare);
 	void printBoard();

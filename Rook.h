@@ -8,7 +8,9 @@ class Rook : public Figure
 {
 public:
 	Rook() {};
-	virtual void print(bool isWhite) { isWhite ? std::cout << " R " : std::cout << " r "; };
+	Rook(const Rook& f) { color = f.color; };
+	Rook(Color c) { color = c; };
+	virtual void print() { color == WHITE ? std::cout << " R " : std::cout << " r "; };
 	virtual bool isValidMove(int currentX, int currentY, int newX, int newY)
 	{
 		if (currentX == newX || currentY == newY)
@@ -17,31 +19,31 @@ public:
 		}
 		return false;
 	};
-	virtual bool isCleanWay(Board& thisBoard, Square* currentSquare, Square* newSquare)
+	virtual bool isCleanWay(Board& thisBoard, int currentX, int currentY, int newX, int newY)
 	{ 
-		if (currentSquare->getX() == newSquare->getX())
+		if (currentX == newX)
 		{
-			int yIncrement = (newSquare->getY() - currentSquare->getY()) / (abs(newSquare->getY() - currentSquare->getY()));
-			for (int i = currentSquare->getY() + yIncrement; i != newSquare->getY(); i += yIncrement)
+			int yIncrement = (newY - currentY) / (abs(newY - currentY));
+			for (int i = currentY + yIncrement; i != newY; i += yIncrement)
 			{
-				if (thisBoard.getSquare(newSquare->getX(), i)->getColor() != NONE)
+				if (thisBoard.getSquare(newX, i)->getColor() != NONE)
 					return false;
 			}
 		}
 		else
 		{
-			if (currentSquare->getY() == newSquare->getY())
+			if (currentY == newY)
 			{
-				int xIncrement = (newSquare->getX() - currentSquare->getX()) / (abs(newSquare->getX() - currentSquare->getX()));
-				for (int i = currentSquare->getX() + xIncrement; i != newSquare->getX(); i += xIncrement)
+				int xIncrement = (newX - currentX) / (abs(newX - currentX));
+				for (int i = currentX + xIncrement; i != newX; i += xIncrement)
 				{
-					if (thisBoard.getSquare(newSquare->getY(), i)->getColor() != NONE)
+					if (thisBoard.getSquare(newY, i)->getColor() != NONE)
 						return false;
 				}
 			}
 		}
 		return true;
 	};
-	virtual Figure* getCopy() const { return new Rook(*this); };
+	virtual Figure* getCopy(Color c) const { return new Rook(c); };
 	virtual bool isKing() { return false; };
 };
