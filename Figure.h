@@ -10,6 +10,7 @@ class Figure
 {
 protected:
 	Color color;
+
 public:
 	Figure() {};
 	Figure(const Figure& f) { color = f.color; };
@@ -18,7 +19,8 @@ public:
 	void setColor(Color c) { color = c; };
 	virtual void print() {};
 	virtual bool isValidMove(int currentX, int currentY, int newX, int newY) { return false; };
-	virtual bool isCleanWay(Board& board, int currentX, int currentY, int newX, int newY) { return false; };
+	virtual bool isCleanWay(Board thisBoard, int currentX, int currentY, int newX, int newY) { return false; };
 	virtual Figure* getCopy(Color c) const { return NULL; };
 	virtual bool isKing() { return false; };
+
 };

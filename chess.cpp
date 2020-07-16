@@ -16,24 +16,28 @@ Square::Square()
 
 Square::~Square()
 {
-	setEmpty();
+	makeEmpty();
 }
 
-void Square::copy(Square* s)
+void Square::getCopy(Square* s)
 {
-	setEmpty();
+	makeEmpty();
 	figure = s->getFigure()->getCopy(s->getColor());
 }
 
 void Square::print()
 {
-	if(figure) 
+	if (figure)
+	{
 		figure->print();
+	}
 	else
+	{
 		cout << " " << "\21" << " ";
+	}
 }
 
-void Square::setEmpty()
+void Square::makeEmpty()
 {
 	if (figure)
 	{
@@ -47,9 +51,9 @@ Figure* Square::getFigure()
 	return figure;
 }
 
-void Square::setFigure(Figure* f)
+void Square::putFigure(Figure* f)
 {
-	setEmpty();
+	makeEmpty();
 	figure = f;
 }
 
@@ -60,7 +64,7 @@ Color Square::getColor()
 
 Board::Board()
 {
-	for (int i = 0; i < boardSize / 2 + 1; i++)
+	for (int i = 0; i < BOARD_SIZE / 2 + 1; i++)
 	{
 		Figure* f = NULL;
 		switch (i)
@@ -72,31 +76,31 @@ Board::Board()
 		case 4: f=new King(WHITE); break;
 		default: break;
 		}
-		square[i][0].setFigure(f);
-		square[i][7].setFigure(f->getCopy(BLACK));
-		square[i][1].setFigure(new Pawn(WHITE));
-		square[i][6].setFigure(new Pawn(BLACK));
+		squares[i][0].putFigure(f);
+		squares[i][7].putFigure(f->getCopy(BLACK));
+		squares[i][1].putFigure(new Pawn(WHITE));
+		squares[i][6].putFigure(new Pawn(BLACK));
 
 		if (i < 3)
 		{
-			square[boardSize - i - 1][0].setFigure(f->getCopy(WHITE));
-			square[boardSize - i - 1][7].setFigure(f->getCopy(BLACK));
-			square[boardSize - i - 1][1].setFigure(new Pawn(WHITE));
-			square[boardSize - i - 1][6].setFigure(new Pawn(BLACK));
+			squares[BOARD_SIZE - i - 1][0].putFigure(f->getCopy(WHITE));
+			squares[BOARD_SIZE - i - 1][7].putFigure(f->getCopy(BLACK));
+			squares[BOARD_SIZE - i - 1][1].putFigure(new Pawn(WHITE));
+			squares[BOARD_SIZE - i - 1][6].putFigure(new Pawn(BLACK));
 		}
 	}
-	turn = WHITE;
+	isWhitesTurn = true;
 }
 
 void Board::printBoard()
 {
 	cout << "   y: 0  1  2  3  4  5  6  7 " << endl << "x:" << endl;
-	for (int i = 0; i < boardSize; i++)
+	for (int i = 0; i < BOARD_SIZE; i++)
 	{
 		cout << " " << i << "   ";
-		for (int j = 0; j < boardSize; j++)
+		for (int j = 0; j < BOARD_SIZE; j++)
 		{
-			square[i][j].print();
+			squares[i][j].print();
 		}
 		cout << endl;
 	}
@@ -117,7 +121,7 @@ bool Board::makeMove()
 	bool validMove = false;
 	while (!validMove)
 	{
-		(turn == WHITE) ? cout << "White's turn" << endl : cout << "Black's turn" << endl;
+		(isWhitesTurn) ? cout << "White's turn" << endl : cout << "Black's turn" << endl;
 
 		cout << "Type in your move as a single four character string. Use x-coordinates first in each pair." << endl;
 		cin >> command;
@@ -125,9 +129,10 @@ bool Board::makeMove()
 		currentY = command[1] - 48;
 		newX = command[2] - 48;
 		newY = command[3] - 48;
-		if (getSquare(currentX, currentY)->getColor() == turn)
+		if ((getSquare(currentX, currentY)->getColor() == WHITE && isWhitesTurn) ||
+			(getSquare(currentX, currentY)->getColor() == BLACK && !isWhitesTurn))
 		{
-			if (moveFigure(currentX, currentY, newX, newY) == false)
+			if (isValidMove(currentX, currentY, newX, newY) == false)
 			{
 				cout << "Invalid move, try again." << endl;
 			}
@@ -138,7 +143,9 @@ bool Board::makeMove()
 			}
 		}
 		else
+		{
 			cout << "That's not your piece. Try again." << endl;
+		}
 	}
 	if (getSquare(newX, newY)->getFigure()->isKing())
 	{
@@ -146,12 +153,12 @@ bool Board::makeMove()
 		return false;
 	}
 	
-	(turn == BLACK) ? turn = WHITE : turn = BLACK;
+	isWhitesTurn = !isWhitesTurn;
 	return true;
 
 }
 
-bool Board::moveFigure(int currentX, int currentY, int newX, int newY)
+bool Board::isValidMove(int currentX, int currentY, int newX, int newY)
 {
 
 	if (currentX < 0 || currentX>7 || currentY < 0 || currentY>7 || newX < 0 || newX>7 || newY < 0 || newY>8)
@@ -168,12 +175,52 @@ bool Board::moveFigure(int currentX, int currentY, int newX, int newY)
 		return false;
 	}
 
-	return currentSquare->getFigure()->isValidMove(currentX, currentY, newX, newY)
-		&& currentSquare->getFigure()->isCleanWay(*this, currentX, currentY, newX, newY);
+	return currentSquare->getFigure()->isValidMove(currentX, currentY, newX, newY);// &&
+		//currentSquare->getFigure()->isCleanWay(*this, currentX, currentY, newX, newY);
 }
 
 void Board::move(Square* currentSquare, Square* newSquare)
 {
-	newSquare->copy(currentSquare);
-	currentSquare->setEmpty();
+	newSquare->getCopy(currentSquare);
+	currentSquare->makeEmpty();
+}
+
+bool isCleanStraight(Board thisBoard, int currentX, int currentY, int newX, int newY)
+{
+	if (currentX == newX)
+	{
+		int increment = (newY - currentY) / (abs(newY - currentY));
+		for (int i = currentY + increment; i != newY; i += increment)
+		{
+			if (thisBoard.getSquare(newX, i)->getColor() != NONE)
+			{
+				return false;
+			}
+		}
+	}
+	else if (currentY == newY)
+	{
+		int increment = (newX - currentX) / (abs(newX - currentX));
+		for (int i = currentX + increment; i != newX; i += increment)
+		{
+			if (thisBoard.getSquare(newY, i)->getColor() != NONE)
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+bool isCleanDiagonal(Board thisBoard, int currentX, int currentY, int newX, int newY)
+{
+	int xIncrement = (newX - currentX) / (abs(newX - currentX));
+	int yIncrement = (newY - currentY) / (abs(newY - currentY));
+
+	for (int i = 1; i < abs(currentX - newX); i++)
+	{
+		if (thisBoard.getSquare((currentX + xIncrement * i), (currentY + yIncrement * i))->getColor() != NONE)
+			return false;
+	}
+	return true;
 }

@@ -5,19 +5,20 @@
 #include <string>
 #include "Figure.h"
 
-const int boardSize = 8;
+const int BOARD_SIZE = 8;
 
 class Square
 {
 private:
 	Figure* figure;
+
 public:
 	Square();
 	~Square();
-	void copy(Square* s);
+	void getCopy(Square* s);
 	void print();
-	void setFigure(Figure* f);
-	void setEmpty();
+	void putFigure(Figure* f);
+	void makeEmpty();
 	Figure* getFigure();
 	Color getColor();
 };
@@ -25,15 +26,19 @@ public:
 class Board
 {
 private:
-	Square square[boardSize][boardSize];
-	Color turn;
-	bool moveFigure(int currentX, int currentY, int newX, int newY);
+	Square squares[BOARD_SIZE][BOARD_SIZE];
+	bool isWhitesTurn;
+	bool isValidMove(int currentX, int currentY, int newX, int newY);
 	void move(Square* currentSquare, Square* newSquare);
 	void printBoard();
+
 public:
 	Board();
-	Square* getSquare(int x, int y) { return &square[x][y]; }
-	void setSquare(Square * s, int x, int y) { square[x][y] = *s; }
+	Square* getSquare(int x, int y) { return &squares[x][y]; }
+	void setSquare(Square * s, int x, int y) { squares[x][y] = *s; }
 	bool makeMove();
 	bool playGame();
 };
+
+bool isCleanStraight(Board thisBoard, int currentX, int currentY, int newX, int newY);
+bool isCleanDiagonal(Board thisBoard, int currentX, int currentY, int newX, int newY);

@@ -18,9 +18,11 @@ public:
 			return true;
 		}
 		else
+		{
 			return false;
+		}
 	};
-	virtual bool isCleanWay(Board& board, int currentX, int currentY, int newX, int newY) { return true; };
+	virtual bool isCleanWay(Board thisBoard, int currentX, int currentY, int newX, int newY) { return true; };
 	virtual Figure* getCopy(Color c) const { return new Knight(c); };
 	virtual bool isKing() { return false; };
 }; 
