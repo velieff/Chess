@@ -1,5 +1,5 @@
-#include <iostream>
-#include "chess.h"
+#include<iostream>
+#include"Board.h"
 
 int main()
 {
