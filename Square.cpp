@@ -13,13 +13,13 @@ Square::~Square()
 	makeEmpty();
 }
 
-void Square::getCopy(Square* s)
+void Square::set(Square* s)
 {
 	makeEmpty();
 	figure = s->getFigure()->getCopy(s->getFigureColor());
 }
 
-void Square::print()
+void Square::print() const
 {
 	if (figure)
 	{
@@ -40,7 +40,7 @@ void Square::makeEmpty()
 	}
 }
 
-Figure* Square::getFigure()
+Figure* Square::getFigure() const
 {
 	return figure;
 }
@@ -51,7 +51,7 @@ void Square::putFigure(Figure* f)
 	figure = f;
 }
 
-Color Square::getFigureColor()
+Color Square::getFigureColor()const
 {
 	return figure ? figure->getColor() : NONE;
 }

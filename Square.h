@@ -12,10 +12,10 @@ private:
 public:
 	Square();
 	~Square();
-	void getCopy(Square* s);
-	void print();
+	void set(Square* s);
+	void print() const;
 	void putFigure(Figure* f);
 	void makeEmpty();
-	Figure* getFigure();
-	Color getFigureColor();
+	Figure* getFigure() const;
+	Color getFigureColor() const;
 };

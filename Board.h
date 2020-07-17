@@ -13,11 +13,11 @@ private:
 	Square squares[BOARD_SIZE][BOARD_SIZE];
 	bool isWhitesTurn;
 	void move(Square* currentSquare, Square* newSquare);
-	void printBoard();
+	void printBoard() const;
 	bool isValidMove(int currentX, int currentY, int newX, int newY);
-	bool isCleanWay(int currentX, int currentY, int newX, int newY);
-	bool isCleanStraight(int currentX, int currentY, int newX, int newY);
-	bool isCleanDiagonally(int currentX, int currentY, int newX, int newY);
+	bool isPathFree(int currentX, int currentY, int newX, int newY);
+	bool isFreeStraight(int currentX, int currentY, int newX, int newY);
+	bool isFreeDiagonally(int currentX, int currentY, int newX, int newY);
 
 public:
 	Board();

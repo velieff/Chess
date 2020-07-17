@@ -39,7 +39,7 @@ Board::Board()
 	isWhitesTurn = true;
 }
 
-void Board::printBoard()
+void Board::printBoard() const
 {
 	std::cout << "   y: 0  1  2  3  4  5  6  7\nx:\n";
 	for (int i = 0; i < BOARD_SIZE; i++)
@@ -107,7 +107,7 @@ bool Board::makeMove()
 
 void Board::move(Square* currentSquare, Square* newSquare)
 {
-	newSquare->getCopy(currentSquare);
+	newSquare->set(currentSquare);
 	currentSquare->makeEmpty();
 }
 
@@ -129,19 +129,19 @@ bool Board::isValidMove(int currentX, int currentY, int newX, int newY)
 	}
 
 	return currentSquare->getFigure()->isValidMove(currentX, currentY, newX, newY) &&
-		isCleanWay(currentX, currentY, newX, newY);
+		isPathFree(currentX, currentY, newX, newY);
 }
 
-bool Board::isCleanWay(int currentX, int currentY, int newX, int newY)
+bool Board::isPathFree(int currentX, int currentY, int newX, int newY)
 {
 	Figure * figure = getSquare(currentX, currentY)->getFigure();
 
-	if (figure->goesStraight() && isCleanStraight(currentX, currentY, newX, newY))
+	if (figure->goesStraight() && isFreeStraight(currentX, currentY, newX, newY))
 	{
 		return true;
 	}
 
-	if (figure->goesDiagonally() && isCleanDiagonally(currentX, currentY, newX, newY))
+	if (figure->goesDiagonally() && isFreeDiagonally(currentX, currentY, newX, newY))
 	{
 		return true;
 	}
@@ -155,7 +155,7 @@ bool Board::isCleanWay(int currentX, int currentY, int newX, int newY)
 	return false;
 }
 
-bool Board::isCleanStraight(int currentX, int currentY, int newX, int newY)
+bool Board::isFreeStraight(int currentX, int currentY, int newX, int newY)
 {
 	if (currentX == newX)
 	{
@@ -184,7 +184,7 @@ bool Board::isCleanStraight(int currentX, int currentY, int newX, int newY)
 	return false;
 }
 
-bool Board::isCleanDiagonally(int currentX, int currentY, int newX, int newY)
+bool Board::isFreeDiagonally(int currentX, int currentY, int newX, int newY)
 {
 	if (newX - currentX == 0 || newY - currentY == 0)
 	{
